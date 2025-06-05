@@ -1,0 +1,10 @@
+const SCREENS = {
+  LOGIN: 'LOGIN',
+  REGISTER: 'REGISTER',
+  PROGRAM: 'PROGRAM',
+  HOME: 'HOME',
+  PROFILE: 'PROFILE',
+  PROGRAM: 'PROGRAM',
+};
+  
+export default SCREENS;
