@@ -1,135 +1,120 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Alert, SectionList, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Alert,
+  SectionList,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
-import { Calendar } from 'react-native-calendars';
+import {Calendar} from 'react-native-calendars';
 import CustomSelect from '../../components/CustomSelect';
 import CustomButton from '../../components/CustomButton';
-import ICONS from "../../assets/icons";
-import { iconSize, spacing } from "../../constants/dimensions";
+import ICONS from '../../assets/icons';
+import {iconSize, spacing} from '../../constants/dimensions';
 
 const WorkoutPlanscreen = ({route}) => {
-  const { userData, apiUrl, scheduleWorkout} = route.params;
+  const {userData, apiUrl, scheduleWorkout} = route.params;
   const [dataClient, setDataClient] = useState([]);
-  
-  useEffect(() => {
 
+  useEffect(() => {
     const formData = {
       programclient: scheduleWorkout ? scheduleWorkout.id : scheduleWorkout,
     };
-  
+
     const fetchData = async () => {
       try {
-        const response = await fetch(apiUrl + "programclient", {
+        const response = await fetch(apiUrl + 'programclient', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData),
         });
-  
+
         if (!response.ok) {
-          Alert.alert(
-            'Error :',
-            data.message,
-          );
+          Alert.alert('Error :', data.message);
           return;
         }
 
-        const data = await response.json();  
+        const data = await response.json();
 
         if (Array.isArray(data)) {
           setDataClient(data);
         } else if (data && data.message) {
-          Alert.alert(
-            'Error :',
-            data.message,
-          );
+          Alert.alert('Error :', data.message);
         } else {
-          Alert.alert(
-            'Error :',
-            'Unknown error occurred',
-          );
+          Alert.alert('Error :', 'Unknown error occurred');
         }
-
       } catch (error) {
         console.error(error);
-        Alert.alert(
-          'Error :',
-          'Failed to connect API',
-        );
+        Alert.alert('Error :', 'Failed to connect API');
       }
     };
-  
+
     fetchData();
   }, [userData, apiUrl]);
 
   const [dataSchedule, setDataSchedule] = useState([]);
-  
-  useEffect(() => {
 
+  useEffect(() => {
     const formData = {
       scheduleWorkout: scheduleWorkout ? scheduleWorkout.id : scheduleWorkout,
     };
-  
+
     const fetchData = async () => {
       try {
-        const response = await fetch(apiUrl + "schedule", {
+        const response = await fetch(apiUrl + 'schedule', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData),
         });
-  
+
         if (!response.ok) {
-          Alert.alert(
-            'Error :',
-            data.message,
-          );
+          Alert.alert('Error :', data.message);
           return;
         }
 
-        const data = await response.json();  
+        const data = await response.json();
 
         if (Array.isArray(data)) {
           setDataSchedule(data);
         } else if (data && data.message) {
-          Alert.alert(
-            'Error :',
-            data.message,
-          );
+          Alert.alert('Error :', data.message);
         } else {
-          Alert.alert(
-            'Error :',
-            'Unknown error occurred',
-          );
+          Alert.alert('Error :', 'Unknown error occurred');
         }
-
       } catch (error) {
         console.error(error);
-        Alert.alert(
-          'Error :',
-          'Failed to connect API',
-        );
+        Alert.alert('Error :', 'Failed to connect API');
       }
     };
-  
+
     fetchData();
   }, [userData, apiUrl]);
 
   const [dataBodyPart, setDataBodyPart] = useState(null);
 
   const minDate = dataSchedule.length > 0 ? dataSchedule[0].date : null;
-  const maxDate = dataSchedule.length > 0 ? dataSchedule[dataSchedule.length - 1].date : null;
-  
-  const markedDates = dataSchedule.length > 0 ? dataSchedule.reduce((acc, item) => {
-    acc[item.date] = {
-      marked: true,
-      dotColor: item.rest === 'ON' ? '#70d7c7' : '#ff0000',
-      color: item.status === '1' ? '#70d7c7' : undefined 
-    };
-    return acc;
-  }, {}) : {};
+  const maxDate =
+    dataSchedule.length > 0 ? dataSchedule[dataSchedule.length - 1].date : null;
+
+  const markedDates =
+    dataSchedule.length > 0
+      ? dataSchedule.reduce((acc, item) => {
+          acc[item.date] = {
+            marked: true,
+            dotColor: item.rest === 'ON' ? '#70d7c7' : '#ff0000',
+            color: item.status === '1' ? '#70d7c7' : undefined,
+          };
+          return acc;
+        }, {})
+      : {};
 
   const [selectedDay, setSelectedDay] = useState('');
 
@@ -141,7 +126,7 @@ const WorkoutPlanscreen = ({route}) => {
       schedule: scheduleWorkout ? scheduleWorkout.id : scheduleWorkout,
       date: selectedDateString,
     };
-  
+
     try {
       const response = await fetch(`${apiUrl}schedule_program`, {
         method: 'POST',
@@ -150,282 +135,218 @@ const WorkoutPlanscreen = ({route}) => {
         },
         body: JSON.stringify(dateRange),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to send data to API');
       }
-  
+
       const data = await response.json();
 
       if (data && Array.isArray(data.rulebody)) {
-          setDataBodyPart(data.rulebody);
-          resetTextInput();
-          setDataExercise([]);
-          setSelectedIds([]);
-      } 
-      else if (data && data.message) {
-        Alert.alert(
-          'Error :',
-          data.message,
-        );
+        setDataBodyPart(data.rulebody);
+        resetTextInput();
+        setDataExercise([]);
+        setSelectedIds([]);
+      } else if (data && data.message) {
+        Alert.alert('Error :', data.message);
         resetTextInput();
         setDataBodyPart([]);
         setDataExercise([]);
         setSelectedIds([]);
-      }
-      else {
-          Alert.alert(
-            'Error :',
-            'Unknown error occurred',
-          );
-          setDataBodyPart([]);
-          setDataExercise([]);
-          setSelectedIds([]);
+      } else {
+        Alert.alert('Error :', 'Unknown error occurred');
+        setDataBodyPart([]);
+        setDataExercise([]);
+        setSelectedIds([]);
       }
 
       if (data && Array.isArray(data.listworkout)) {
-          setListDataExercise(data.listworkout);
-      } 
-      else if (data && data.message) {
-        Alert.alert(
-          'Error :',
-          data.message,
-        );
+        setListDataExercise(data.listworkout);
+      } else if (data && data.message) {
+        Alert.alert('Error :', data.message);
+        setListDataExercise([]);
+      } else {
+        Alert.alert('Error :', 'Unknown error occurred');
         setListDataExercise([]);
       }
-      else {
-          Alert.alert(
-            'Error :',
-            'Unknown error occurred',
-          );
-          setListDataExercise([]);
-      }
-
     } catch (error) {
-      Alert.alert(
-        'Error :',
-        data.message,
-      );
+      Alert.alert('Error :', data.message);
       console.error(error);
     }
-  }
+  };
 
   const [dataExercise, setDataExercise] = useState([]);
   const [selectedOptionWorkout, setSelectedOptionBodyPart] = useState(null);
 
-  const handleSelectBodyPart = async (option) => {
+  const handleSelectBodyPart = async option => {
     setSelectedOptionBodyPart(option ? option.value : null);
-    
+
     const selectData = {
       bodypartid: option ? option.value : null,
     };
 
     try {
-    const response = await fetch(`${apiUrl}exercise`, {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(selectData),
-    });
+      const response = await fetch(`${apiUrl}exercise`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectData),
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to send data to API');
-    }
+      if (!response.ok) {
+        throw new Error('Failed to send data to API');
+      }
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (Array.isArray(data)) {
-      setDataExercise(data);
-      setSelectedIds([]);
-    } else if (data && data.message) {
-      Alert.alert(
-        'Error :',
-        data.message,
-      );
-      setDataExercise([]);
-      resetTextInput();
-    } else {
-      Alert.alert(
-        'Error :',
-        'Unknown error occurred',
-      );
-    }
+      if (Array.isArray(data)) {
+        setDataExercise(data);
+        setSelectedIds([]);
+      } else if (data && data.message) {
+        Alert.alert('Error :', data.message);
+        setDataExercise([]);
+        resetTextInput();
+      } else {
+        Alert.alert('Error :', 'Unknown error occurred');
+      }
     } catch (error) {
-    Alert.alert(
-      'Error :',
-      data.message,
-    );
+      Alert.alert('Error :', data.message);
       console.error(error);
     }
   };
 
   const [selectedIds, setSelectedIds] = useState([]);
-  const handleCheckboxChange = (id) => {
-      setSelectedIds((prevIds) => {
-          if (prevIds.includes(id)) {
-              return prevIds.filter((itemId) => itemId !== id);
-          } else {
-              return [...prevIds, id];
-          }
-      });
+  const handleCheckboxChange = id => {
+    setSelectedIds(prevIds => {
+      if (prevIds.includes(id)) {
+        return prevIds.filter(itemId => itemId !== id);
+      } else {
+        return [...prevIds, id];
+      }
+    });
   };
 
   const onAddExercisePressed = async () => {
-      Alert.alert(
-          'Confirmation',
-          `Do you want to add a training session?`,
-          [
-              { text: 'Cancel', style: 'cancel' },
-              { 
-                  text: 'OK', 
-                  onPress: () => {
-                      if (selectedDay === '' || selectedIds.length === 0) {
-                          Alert.alert(
-                              'Error :',
-                              'No date or exercise data selected!',
-                          );
-                      }
-                      else {
-                          const selectData = {
-                              programId: scheduleWorkout.id,
-                              dateId: selectedDay,
-                              bodypartId: selectedOptionWorkout,
-                              exerciseId: selectedIds,
-                          };
-                          onExecuteExercisePressed(selectData);
-                      }
-                  } 
-              },
-          ]
-      );
+    Alert.alert('Confirmation', `Do you want to add a training session?`, [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'OK',
+        onPress: () => {
+          if (selectedDay === '' || selectedIds.length === 0) {
+            Alert.alert('Error :', 'No date or exercise data selected!');
+          } else {
+            const selectData = {
+              programId: scheduleWorkout.id,
+              dateId: selectedDay,
+              bodypartId: selectedOptionWorkout,
+              exerciseId: selectedIds,
+            };
+            onExecuteExercisePressed(selectData);
+          }
+        },
+      },
+    ]);
   };
 
-  const onExecuteExercisePressed = async (selectData) => {
+  const onExecuteExercisePressed = async selectData => {
+    try {
+      const response = await fetch(apiUrl + 'trainingexercise', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectData),
+      });
 
-      try {
-        const response = await fetch(apiUrl + "trainingexercise", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(
-                selectData
-            ),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to send data to API');
-        }
-
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          Alert.alert(
-            'Success',
-            'Exercise training set successfully added!',
-          );
-          setSelectedDay(selectedDay);
-          setListDataExercise(data);
-          setDataExercise([]);
-          setSelectedIds([]);
-          resetTextInput();
-        } else if (data && data.message) {
-          Alert.alert(
-              'Error :',
-              data.message,
-          );
-        } else {
-          Alert.alert(
-            'Error :',
-            data.message,
-          );
-        }
-      } catch (error) {
-        Alert.alert(
-          'Error',
-          'Failed to add training sessions.',
-        );
+      if (!response.ok) {
+        throw new Error('Failed to send data to API');
       }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        Alert.alert('Success', 'Exercise training set successfully added!');
+        setSelectedDay(selectedDay);
+        setListDataExercise(data);
+        setDataExercise([]);
+        setSelectedIds([]);
+        resetTextInput();
+      } else if (data && data.message) {
+        Alert.alert('Error :', data.message);
+      } else {
+        Alert.alert('Error :', data.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add training sessions.');
+    }
   };
 
   const [listDataExercise, setListDataExercise] = useState([]);
 
-  const onDeletPressed = async (id) => {
-      try {
-          const response = await fetch(apiUrl + "deleteworkout", {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  idProgram: scheduleWorkout ? scheduleWorkout.id : null,
-                  idDay: selectedDay,
-                  idTraining: id,
-              }),
-          });
+  const onDeletPressed = async id => {
+    try {
+      const response = await fetch(apiUrl + 'deleteworkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idProgram: scheduleWorkout ? scheduleWorkout.id : null,
+          idDay: selectedDay,
+          idTraining: id,
+        }),
+      });
 
-          if (!response.ok) {
-            throw new Error('Failed to send data to API');
-          }
-      
-          const data = await response.json();
-  
-          if (Array.isArray(data)) {
-              Alert.alert(
-                  'Success :',
-                  'Exercise training set successfully delete!',
-              );
-                setSelectedDay(selectedDay);
-                setListDataExercise(data);
-                setDataExercise([]);
-                setSelectedIds([]);
-                resetTextInput();
-          } else if (data && data.message) {
-              Alert.alert(
-                  'Error :',
-                  data.message,
-              );
-          } else {
-              Alert.alert(
-                  'Error :',
-                  'Unknown error occurred',
-              );
-          }
-      } catch (error) {
-          Alert.alert(
-              'Error',
-              'Failed to delete workout data. Please try again.',
-          );
+      if (!response.ok) {
+        throw new Error('Failed to send data to API');
       }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        Alert.alert('Success :', 'Exercise training set successfully delete!');
+        setSelectedDay(selectedDay);
+        setListDataExercise(data);
+        setDataExercise([]);
+        setSelectedIds([]);
+        resetTextInput();
+      } else if (data && data.message) {
+        Alert.alert('Error :', data.message);
+      } else {
+        Alert.alert('Error :', 'Unknown error occurred');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete workout data. Please try again.');
+    }
   };
 
-  const handleButtonPress = (id) => {
-      Alert.alert(
-          'Delete Confirmation',
-          `Do you want to delete the exercise set with ID ${id}?`,
-          [
-              { text: 'Cancel', style: 'cancel' },
-              { 
-                  text: 'OK', 
-                  onPress: () => {
-                      onDeletPressed(id);
-                  } 
-              },
-          ]
-      );
+  const handleButtonPress = id => {
+    Alert.alert(
+      'Delete Confirmation',
+      `Do you want to delete the exercise set with ID ${id}?`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'OK',
+          onPress: () => {
+            onDeletPressed(id);
+          },
+        },
+      ],
+    );
   };
 
   const [resetCount, setResetCount] = useState(0);
 
   const resetTextInput = () => {
-      setSelectedOptionBodyPart(null);
-      setResetCount(resetCount + 1);
-  }
-  
+    setSelectedOptionBodyPart(null);
+    setResetCount(resetCount + 1);
+  };
+
   return (
     <FlatList
-      data={[{ key: 'workout-plan' }]}
+      data={[{key: 'workout-plan'}]}
       renderItem={() => (
         <View style={styles.root}>
           <Text style={styles.title}>Schedule Workout</Text>
@@ -442,7 +363,9 @@ const WorkoutPlanscreen = ({route}) => {
           {dataClient.map((client, index) => (
             <View key={index} style={styles.containercard}>
               <Text style={styles.titlecard}>Result Diagnose</Text>
-              <Text style={styles.childrencard}>Category : {client.category}</Text>
+              <Text style={styles.childrencard}>
+                Category : {client.category}
+              </Text>
               <Text style={styles.childrencard}>Level : {client.level}</Text>
               <Text style={styles.childrencard}>Rule : {client.program}</Text>
               <Text style={styles.childrencard}>Workout Program : </Text>
@@ -470,61 +393,65 @@ const WorkoutPlanscreen = ({route}) => {
               }}
             />
           </View>
-          <Text style={styles.dateSelect}>{`Tanggal : ${selectedDay ? selectedDay : 'No date selected'}`}</Text>
+          <Text style={styles.dateSelect}>{`Tanggal : ${
+            selectedDay ? selectedDay : 'No date selected'
+          }`}</Text>
           <Text style={styles.subtitle}>List Exercises</Text>
           <CustomSelect
-              key={`bodypart-${resetCount}`}
-              options={dataBodyPart ? dataBodyPart : []}
-              placeholder="Select body"
-              onSelect={handleSelectBodyPart}
+            key={`bodypart-${resetCount}`}
+            options={dataBodyPart ? dataBodyPart : []}
+            placeholder="Select body"
+            onSelect={handleSelectBodyPart}
           />
           {dataExercise.length > 0 && (
             <SectionList
               style={styles.sectionList}
-              sections={[{ data: dataExercise }]}
-              renderItem={({ item }) => (
-              <View style={styles.itemContainer}>
-                <Text style={styles.itemText}>{item.value}</Text>
-                  <CheckBox 
-                      style={styles.checkbox}
-                      disabled={false}
-                      value={selectedIds.includes(item.id)}
-                      onValueChange={() => handleCheckboxChange(item.id)}
-                      tintColors={{ true: '#000000', false: '#aaaaaa' }}
-                      boxType={'square'}
+              sections={[{data: dataExercise}]}
+              renderItem={({item}) => (
+                <View style={styles.itemContainer}>
+                  <Text style={styles.itemText}>{item.value}</Text>
+                  <CheckBox
+                    style={styles.checkbox}
+                    disabled={false}
+                    value={selectedIds.includes(item.id)}
+                    onValueChange={() => handleCheckboxChange(item.id)}
+                    tintColors={{true: '#000000', false: '#aaaaaa'}}
+                    boxType={'square'}
                   />
                 </View>
               )}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={item => item.id.toString()}
               scrollEnabled={false}
             />
           )}
-          <CustomButton text="Add Exercise" onPress={onAddExercisePressed}/>
+          <CustomButton text="Add Exercise" onPress={onAddExercisePressed} />
           <Text style={styles.subtitle}>List Training</Text>
-          {listDataExercise.length > 0 && (
+          {(listDataExercise.length > 0 && (
             <SectionList
-                style={styles.sectionListWorkout}
-                sections={[
+              style={styles.sectionListWorkout}
+              sections={[
                 {
-                    data: listDataExercise,
+                  data: listDataExercise,
                 },
-                ]}
-                renderItem={({ item }) => (
+              ]}
+              renderItem={({item}) => (
                 <View style={styles.itemContainer}>
-                    <Text style={styles.itemText}>Bodypart: {item.label}</Text>
-                    <Text style={styles.itemText}>Exercise: {item.value}</Text>
-                    <TouchableOpacity style={styles.buttonContainer} onPress={() => handleButtonPress(item.id)}>
-                        <Image
-                            source={ICONS["REMOVE"]}
-                            style={{ width: iconSize.lg, height: iconSize.lg }}
-                        />
-                    </TouchableOpacity>
+                  <Text style={styles.itemText}>Bodypart: {item.label}</Text>
+                  <Text style={styles.itemText}>Exercise: {item.value}</Text>
+                  <TouchableOpacity
+                    style={styles.buttonContainer}
+                    onPress={() => handleButtonPress(item.id)}>
+                    <Image
+                      source={ICONS['REMOVE']}
+                      style={{width: iconSize.lg, height: iconSize.lg}}
+                    />
+                  </TouchableOpacity>
                 </View>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
+              )}
+              keyExtractor={item => item.id.toString()}
+              scrollEnabled={false}
             />
-          ) || (
+          )) || (
             <View style={styles.nodata}>
               <Text style={styles.text}>No data available</Text>
             </View>
@@ -534,7 +461,7 @@ const WorkoutPlanscreen = ({route}) => {
     />
   );
 };
-  
+
 const styles = StyleSheet.create({
   root: {
     padding: 20,
@@ -552,7 +479,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     width: '100%',
     borderRadius: 5,
     marginVertical: 5,
@@ -601,7 +528,7 @@ const styles = StyleSheet.create({
   },
   nodata: {
     flex: 1,
-    justifyContent: 'center', 
+    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     borderRadius: 5,

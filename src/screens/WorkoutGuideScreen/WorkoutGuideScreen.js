@@ -1,61 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, SafeAreaView, ScrollView, Alert } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import CustomCardExercise from '../../components/CustomCard/CustomExerciseCard';
 
 const WorkoutGuideScreen = ({route}) => {
-  const { userData, apiUrl, workoutGuide} = route.params;
+  const {userData, apiUrl, workoutGuide} = route.params;
 
   useEffect(() => {
+    const formData = {
+      idUser: userData.id,
+      idExercise: workoutGuide.id,
+    };
 
-      const formData = {
-          idUser: userData.id,
-          idExercise: workoutGuide.id,
-      };
-    
-      const fetchData = async () => {
-        try {
-          const response = await fetch(apiUrl + "guide", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-          });
-    
-          if (!response.ok) {
-            Alert.alert(
-              'Error :',
-              data.message,
-            );
-            return;
-          }
+    const fetchData = async () => {
+      try {
+        const response = await fetch(apiUrl + 'guide', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-          const data = await response.json();  
-
-          if (Array.isArray(data)) {
-              setCurrentWorkout(data);
-          } else if (data && data.message) {
-            Alert.alert(
-              'Error :',
-              data.message,
-            );
-          } else {
-            Alert.alert(
-              'Error :',
-              'Unknown error occurred',
-            );
-          }
-
-        } catch (error) {
-          console.error(error);
-          Alert.alert(
-            'Error :',
-            'Failed to connect API',
-          );
+        if (!response.ok) {
+          Alert.alert('Error :', data.message);
+          return;
         }
-      };
-    
-      fetchData();
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setCurrentWorkout(data);
+        } else if (data && data.message) {
+          Alert.alert('Error :', data.message);
+        } else {
+          Alert.alert('Error :', 'Unknown error occurred');
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error :', 'Failed to connect API');
+      }
+    };
+
+    fetchData();
   }, [userData, apiUrl]);
 
   const [currentWorkout, setCurrentWorkout] = useState([]);
@@ -64,21 +58,23 @@ const WorkoutGuideScreen = ({route}) => {
     <SafeAreaView>
       <ScrollView>
         <View style={styles.root}>
-            <Text style={styles.title}>Workout Guide</Text>
-              {currentWorkout && Array.isArray(currentWorkout) && currentWorkout.map((item, index) => (
-                <View key={index}>
-                    <CustomCardExercise 
-                      title={item.body}
-                      body={item.name}
-                      children={
-                        <Image
-                          source={{ uri: item.animation }}
-                          style={styles.image}
-                        />
-                      }
+          <Text style={styles.title}>Workout Guide</Text>
+          {currentWorkout &&
+            Array.isArray(currentWorkout) &&
+            currentWorkout.map((item, index) => (
+              <View key={index}>
+                <CustomCardExercise
+                  title={item.body}
+                  body={item.name}
+                  children={
+                    <Image
+                      source={{uri: item.animation}}
+                      style={styles.image}
                     />
-                </View>
-              ))}
+                  }
+                />
+              </View>
+            ))}
         </View>
       </ScrollView>
     </SafeAreaView>
