@@ -11,7 +11,7 @@ import Logo from '../../assets/images/logo.png';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import {useNavigation} from '@react-navigation/native';
-import {API_URL, API_KEY} from '@env';
+import {API_URL} from '@env';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
